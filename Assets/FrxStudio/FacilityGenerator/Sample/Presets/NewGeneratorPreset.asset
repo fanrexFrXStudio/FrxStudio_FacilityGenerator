@@ -18,3 +18,4 @@ MonoBehaviour:
   CellsCountY: 10
   Rooms:
   - {fileID: 11400000, guid: 903d2b8b72d38474a9b89d74da034e96, type: 2}
+  - {fileID: 11400000, guid: 5d85894d3b07bf9439bc266099b87f6f, type: 2}

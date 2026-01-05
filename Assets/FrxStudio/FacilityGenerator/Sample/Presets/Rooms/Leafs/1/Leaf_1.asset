@@ -18,5 +18,5 @@ MonoBehaviour:
   OverriddenDirection: 0
   MinCellsFromEdge: -1
   MaxCellsFromEdge: 2
-  MinCellsFromLeaf: 5
+  MinCellsFromLeaf: 3
   Count: 5

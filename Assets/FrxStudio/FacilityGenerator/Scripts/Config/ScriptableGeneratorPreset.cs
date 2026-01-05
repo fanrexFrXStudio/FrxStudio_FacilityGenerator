@@ -5,7 +5,7 @@ namespace FrxStudio.Generator
 {
     [CreateAssetMenu(fileName = "NewGeneratorPreset",
         menuName = "FrxStudio/Generator/CreateNewGeneratorPreset")]
-    public class GeneratorPreset : ScriptableObject
+    public class ScriptableGeneratorPreset : ScriptableObject
     {
         [Foldout("Cell"), Range(1, 50)]
         public float CellSize;

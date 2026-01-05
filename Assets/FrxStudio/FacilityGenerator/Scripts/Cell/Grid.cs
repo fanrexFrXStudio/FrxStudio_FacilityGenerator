@@ -10,7 +10,7 @@ namespace FrxStudio.Generator
         public readonly int CellsCountX, CellsCountY;
 
         private readonly Cell[,] cells;
-        private readonly GeneratorPreset preset;
+        private readonly ScriptableGeneratorPreset preset;
         private readonly float worldYPosition;
 
         #region Gizmo
@@ -38,7 +38,7 @@ namespace FrxStudio.Generator
 
         #region Type
 
-        public Grid(GeneratorPreset preset, float worldYPosition)
+        public Grid(ScriptableGeneratorPreset preset, float worldYPosition)
         {
             this.preset = preset;
             this.worldYPosition = worldYPosition;

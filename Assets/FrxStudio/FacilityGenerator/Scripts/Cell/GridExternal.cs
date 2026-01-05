@@ -30,7 +30,7 @@ namespace FrxStudio.Generator
             {
                 var next = grid.GetNext(from, direction);
 
-                if (next == null)
+                if (next == CellPosition.Invalid)
                     continue;
 
                 if (predicate != null)

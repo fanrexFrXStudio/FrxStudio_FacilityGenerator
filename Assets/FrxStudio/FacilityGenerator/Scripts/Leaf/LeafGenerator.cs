@@ -8,7 +8,7 @@ namespace FrxStudio.Generator
     {
         public IReadOnlyList<CellPosition> PlacedLeafs => placedLeafs;
 
-        private readonly GeneratorPreset preset;
+        private readonly ScriptableGeneratorPreset preset;
         private readonly FacilityGenerator generator;
 
         private readonly Grid grid;
@@ -16,7 +16,7 @@ namespace FrxStudio.Generator
 
         private readonly List<CellPosition> placedLeafs = new();
 
-        public LeafGenerator(GeneratorPreset preset, FacilityGenerator generator, Grid grid, Random random)
+        public LeafGenerator(ScriptableGeneratorPreset preset, FacilityGenerator generator, Grid grid, Random random)
         {
             this.preset = preset;
             this.generator = generator;

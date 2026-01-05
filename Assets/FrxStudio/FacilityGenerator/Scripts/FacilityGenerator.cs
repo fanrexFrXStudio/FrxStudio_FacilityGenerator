@@ -9,7 +9,7 @@ namespace FrxStudio.Generator
         #region Var
 
         [SerializeField]
-        private GeneratorPreset preset;
+        private ScriptableGeneratorPreset preset;
         
         [SerializeField, ReadOnly]
         private FacilityGeneratorGizmo gizmo;
@@ -28,6 +28,7 @@ namespace FrxStudio.Generator
 
         private Grid grid;
         private LeafGenerator leafGenerator;
+        private BranchGenerator branchGenerator;
 
         private int initialSeed;
 
@@ -101,8 +102,11 @@ namespace FrxStudio.Generator
 
             for (var attempt = 0; attempt < attemps; attempt++)
             {
-                if (InitializeLeafs())
+                if (InitializeLeafs() &&
+                    InitializeBranch())
+                {
                     break;
+                }
 
                 Debug.Log("[Generator]: Failed to initialize leafs. Attempt " + (attempt + 1));
                 random = new(RandomSeed);
@@ -123,16 +127,24 @@ namespace FrxStudio.Generator
             random = new(seed);
         }
 
+        private void InitializeGrid()
+        {
+            grid = new(preset, transform.position.y);
+            gizmo.AddDrawable(grid);
+        }
+
         private bool InitializeLeafs()
         {
             leafGenerator = new(preset, this, grid, random);
             return leafGenerator.SpawnLeafs();
         }
 
-        private void InitializeGrid()
+        private bool InitializeBranch()
         {
-            grid = new(preset, transform.position.y);
-            gizmo.AddDrawable(grid);
+            branchGenerator = new(grid, leafGenerator, preset);
+            gizmo.AddDrawable(branchGenerator);
+
+            return true;
         }
 
         #endregion

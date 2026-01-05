@@ -31,6 +31,8 @@ namespace FrxStudio.Generator
 
         private int initialSeed;
 
+        private int RandomSeed => UnityEngine.Random.Range(1, int.MaxValue);
+
         #endregion
 
         #region Mono
@@ -103,6 +105,8 @@ namespace FrxStudio.Generator
                     break;
 
                 Debug.Log("[Generator]: Failed to initialize leafs. Attempt " + (attempt + 1));
+                random = new(RandomSeed);
+                ClearSpawned();
             }
 
             stopWatch.Stop();
@@ -114,7 +118,7 @@ namespace FrxStudio.Generator
         private void InitializeRandom()
         {
             if (seed <= 0 || initialSeed <= 0)
-                seed = Random.Range(1, int.MaxValue);
+                seed = RandomSeed;
 
             random = new(seed);
         }

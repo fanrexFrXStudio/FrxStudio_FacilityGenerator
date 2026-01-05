@@ -225,6 +225,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 906882707}
+  - component: {fileID: 906882709}
+  - component: {fileID: 906882708}
   m_Layer: 0
   m_Name: Generator
   m_TagString: Untagged
@@ -241,12 +243,41 @@ Transform:
   m_GameObject: {fileID: 906882706}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.066744685, y: -2.6852899, z: -0.81796414}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &906882708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906882706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 354edd39e14d7cc4eaa091f2729b6ccd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawGizmo: 0
+--- !u!114 &906882709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906882706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c943312ae6894d240a86497e994765aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  preset: {fileID: 0}
+  gizmo: {fileID: 906882708}
+  generateInAwake: 1
+  seed: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

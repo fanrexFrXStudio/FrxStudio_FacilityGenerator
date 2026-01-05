@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 954b6f82b0be3ac498edb0fd356bc5b8, type: 3}
+  m_Name: NewGeneratorPreset
+  m_EditorClassIdentifier: 
+  CellSize: 10
+  CellSpacing: 0.1
+  CellsCountX: 10
+  CellsCountY: 10
+  Rooms:
+  - {fileID: 11400000, guid: 903d2b8b72d38474a9b89d74da034e96, type: 2}

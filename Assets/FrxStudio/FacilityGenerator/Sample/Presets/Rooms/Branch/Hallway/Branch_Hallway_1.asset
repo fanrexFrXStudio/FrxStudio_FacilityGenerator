@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b3fd231bd9ab0045a454345c6eaa95a, type: 3}
   m_Name: Branch_Hallway_1
   m_EditorClassIdentifier: 
-  Name: Branch)Hallway_1
+  Name: Branch_Hallway_1
   Prefab: {fileID: 5627876854025078101, guid: ab142ecaa973c1d41bea218c11404206, type: 3}
   Shape: 1
   spawnChance: 50

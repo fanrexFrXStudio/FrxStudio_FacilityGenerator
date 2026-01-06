@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace FrxStudio.Generator
 {
@@ -8,33 +10,67 @@ namespace FrxStudio.Generator
             this Pathinder pathfinder,
             CellPosition from, CellPosition to,
             FacilityGenerator generator,
-            ScriptableBranchRoom[] rooms)
+            ScriptableBranchRoom[] rooms,
+            Grid grid)
         {
-            var path = pathfinder.GetPath(from, to);
+            var fromCell = grid.GetCell(from);
+            var toCell = grid.GetCell(to);
 
-            var current = path.Parent;
-            var child = path;
-
-            while (current != null && current.Parent != null && child != null)
+            if (fromCell == null || toCell == null)
             {
-                var parent = current.Parent;
+                Debug.Log("[Generator]: ConnectFromTo: Failed to connect, from or to cell is invalid");
+                return null;
+            }
 
-                var nextPos = parent != null ? parent.Cell.Position : child.Cell.Position;
+            var fromNext = GridExternal.GetNext(grid, from, fromCell.Owner.InstanceDirection);
+            var toNext = GridExternal.GetNext(grid, to, toCell.Owner.InstanceDirection);
+
+            if (fromNext == null || toNext == null)
+            {
+                Debug.Log("[Generator]: ConnectFromTo: Failed to connect, from next or to next is invalid. Check the configuration");
+                return null;
+            }
+
+            var path = pathfinder.GetPath(fromNext, toNext);
+            if (path == null)
+            {
+                Debug.Log("[Generator]: ConnectFromTo: Path not found");
+                return null;
+            }
+
+            Debug.Log("From next is " + fromNext + ", to next is " + toNext);
+
+            var nodes = new List<PathfindNode>();
+            var iter = path;
+
+            while (iter != null)
+            {
+                nodes.Add(iter);
+                iter = iter.Parent;
+            }
+
+            for (var i = 0; i < nodes.Count; i++)
+            {
+                var current = nodes[i];
+                var child = (i > 0) ? nodes[i - 1] : null;
+                var parent = (i < nodes.Count - 1) ? nodes[i + 1] : null;
+
+                // Если child == null => это конечный узел пути (с приставкой к комнате to)
+                // Если parent == null => это начальный узел пути (с приставкой к комнате from)
+                var inPos = child != null ? child.Cell.Position : to;
+                var outPos = parent != null ? parent.Cell.Position : from;
 
                 var (config, direction) = GetRoomInstanceData(
                     current.Cell.Position,
-                    child.Cell.Position,
-                    nextPos,
+                    inPos,
+                    outPos,
                     rooms);
 
                 if (!generator.Spawn(config, current.Cell.Position, direction))
                 {
-                    UnityEngine.Debug.LogError("[Generator]: Failed to spawn brance");
+                    Debug.LogError("[Generator]: Failed to spawn branch");
                     return null;
                 }
-
-                child = current;
-                current = parent;
             }
 
             return path;
@@ -53,15 +89,17 @@ namespace FrxStudio.Generator
             if (outDirection == inDirection)
                 return (hallwayShapeRoom, outDirection);
 
-            UnityEngine.Debug.Log("CShape!");
             var rotation = GetCShapeDirection(outDirection, inDirection);
             return (cShapeRoom, rotation);
-        }      
+        }
 
         private static Direction GetCShapeDirection(Direction outDirection, Direction inDirection)
         {
             // THIS METHOD WAS MADE A SELECTION METHOD
             // TOUCHING SOMETHING WOULD POSSIBLY BREAK EVERYTHING
+
+            // этот метод ПОЗЖЕ будет приведен в нормальный вид
+            // пока что он работает стабильно, и повороты всегда верные
             //Debug.Log("Out dir: " + outDirection + ", in dir: " + inDirection);
 
             if (outDirection == Direction.Down && inDirection == Direction.Right)

@@ -35,7 +35,13 @@ namespace FrxStudio.Generator
                 leafGenerator.PlacedLeafs[0],
                 leafGenerator.PlacedLeafs[1],
                 generator,
-                rooms);
+                rooms,
+                grid);
+        }
+
+        private void SpawnIntersections()
+        {
+
         }
 
         public void DrawGizmo()

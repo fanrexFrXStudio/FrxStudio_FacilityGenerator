@@ -28,6 +28,9 @@ namespace FrxStudio.Generator
         [Foldout("Spawn"), Range(0, 100)]
         public int Count;
 
+        // я учитываю что, комната может появиться в углу, и это приведет в багам
+        // генерации, оссобенно, если направление будет переопределенно вбок ( право или елево )
+
         public override byte SpawnChance => 100;
     }
 }

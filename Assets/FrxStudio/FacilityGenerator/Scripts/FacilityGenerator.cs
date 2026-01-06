@@ -141,7 +141,8 @@ namespace FrxStudio.Generator
 
         private bool InitializeBranch()
         {
-            branchGenerator = new(grid, leafGenerator, preset);
+            branchGenerator = new(grid, leafGenerator, preset, this);
+            branchGenerator.ConnectBranch();
             gizmo.AddDrawable(branchGenerator);
 
             return true;

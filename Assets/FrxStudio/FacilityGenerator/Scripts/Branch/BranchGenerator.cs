@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace FrxStudio.Generator
 {
@@ -8,30 +9,41 @@ namespace FrxStudio.Generator
         private readonly Grid grid;
         private readonly LeafGenerator leafGenerator;
         private readonly ScriptableGeneratorPreset preset;
+        private readonly FacilityGenerator generator;
 
         // test a to b
-        private PathfindNode instantiated;
+        private PathfindNode path;
 
         public BranchGenerator(
             Grid grid, LeafGenerator leafGenerator,
-            ScriptableGeneratorPreset preset)
+            ScriptableGeneratorPreset preset,
+            FacilityGenerator generator)
         {
             this.grid = grid;
             this.leafGenerator = leafGenerator;
             this.preset = preset;
+            this.generator = generator;
             
             pathfinder = new(grid);
+        }
 
-            instantiated = pathfinder.GetPath(leafGenerator.PlacedLeafs[0], leafGenerator.PlacedLeafs[1]);
-            Debug.Log("Instantiated set " + instantiated.Cell.Position);
+        public void ConnectBranch()
+        {
+            var rooms = preset.Rooms.OfType<ScriptableBranchRoom>().ToArray();
+
+            path = pathfinder.ConnectFromTo(
+                leafGenerator.PlacedLeafs[0],
+                leafGenerator.PlacedLeafs[1],
+                generator,
+                rooms);
         }
 
         public void DrawGizmo()
         {
-            if (instantiated == null)
+            if (path == null)
                 return;
 
-            var current = instantiated;
+            var current = path;
 
             while (current != null)
             {

@@ -10,7 +10,6 @@ namespace FrxStudio.Generator
 
         private readonly ScriptableGeneratorPreset preset;
         private readonly FacilityGenerator generator;
-
         private readonly Grid grid;
         private readonly Random random;
 
@@ -20,7 +19,6 @@ namespace FrxStudio.Generator
         {
             this.preset = preset;
             this.generator = generator;
-
             this.grid = grid;
             this.random = random;
         }
@@ -40,6 +38,13 @@ namespace FrxStudio.Generator
                 for (var count = 0; count < leaf.Count; count++)
                 {
                     var position = GetLeafPosition(leaf);
+
+                    if (position == CellPosition.Invalid)
+                    {
+                        UnityEngine.Debug.Log("[Generator]: No valid position found for leaf");
+                        return false;
+                    }
+
                     var direction = GetDirection(leaf, position);
 
                     if (!generator.Spawn(leaf, position, direction))
@@ -59,7 +64,7 @@ namespace FrxStudio.Generator
         {
             if (!config.OverrideDirection)
                 return grid.GetRandomDirection(random);
-            
+
             return grid.Rotate(
                 grid.GetNearestEdgeInwardDirection(position),
                 config.OverriddenDirection);
@@ -70,32 +75,10 @@ namespace FrxStudio.Generator
             var cells = grid.GetCells(cellPosition => !grid.GetCell(cellPosition).IsBusy).ToList();
             var candidatesCells = new List<CellPosition>();
 
-            // можно на линк, но так читабельнее и чуть производительней (мне похуй)
             foreach (var cellPosition in cells)
             {
-                var nearestEdgePosition = grid.GetNearestEdgePosition(cellPosition);
-                var manhattan = grid.GetManhattan(cellPosition, nearestEdgePosition);
-
-                if (config.MinCellsFromEdge != -1 && manhattan < config.MinCellsFromEdge)
-                    continue;
-
-                if (config.MaxCellsFromEdge != -1 && manhattan > config.MaxCellsFromEdge)
-                    continue;
-
-                var placedInRadius = false;
-
-                foreach (var placedLeaf in placedLeafs)
-                {
-                    var placedLeafManhattan = grid.GetManhattan(cellPosition, placedLeaf);
-
-                    if (placedLeafManhattan < config.MinCellsFromLeaf)
-                    {
-                        placedInRadius = true;
-                        break;
-                    }
-                }
-
-                if (!placedInRadius)
+                if (IsValidByEdgeDistance(config, cellPosition) &&
+                    !HasConflictWithPlacedLeafs(config, cellPosition))
                     candidatesCells.Add(cellPosition);
             }
 
@@ -103,6 +86,66 @@ namespace FrxStudio.Generator
                 return CellPosition.Invalid;
 
             return candidatesCells[random.Next(candidatesCells.Count)];
+        }
+
+        private bool IsValidByEdgeDistance(ScriptableLeafRoom config, CellPosition cellPosition)
+        {
+            var nearestEdgePosition = grid.GetNearestEdgePosition(cellPosition);
+            var manhattan = grid.GetManhattan(cellPosition, nearestEdgePosition);
+
+            return !(config.MinCellsFromEdge != -1 && manhattan < config.MinCellsFromEdge ||
+                config.MaxCellsFromEdge != -1 && manhattan > config.MaxCellsFromEdge);
+        }
+
+        private bool HasConflictWithPlacedLeafs(ScriptableLeafRoom config, CellPosition cellPosition)
+        {
+            foreach (var placedLeaf in placedLeafs)
+            {
+                if (IsTooCloseToLeaf(config, cellPosition, placedLeaf) ||
+                    IsLookedAtByExistingLeaf(cellPosition, placedLeaf) ||
+                    WouldLookAtExistingLeaf(config, cellPosition, placedLeaf))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool IsTooCloseToLeaf(
+            ScriptableLeafRoom config, CellPosition cellPosition, CellPosition placedLeaf) =>
+            grid.GetManhattan(cellPosition, placedLeaf) < config.MinCellsFromLeaf;
+
+        private bool IsLookedAtByExistingLeaf(CellPosition cellPosition, CellPosition placedLeaf)
+        {
+            var placedLeafDirection = grid.GetCell(placedLeaf).Owner.InstanceDirection;
+            return grid.GetNext(placedLeaf, placedLeafDirection) == cellPosition;
+        }
+
+        private bool WouldLookAtExistingLeaf(ScriptableLeafRoom config, CellPosition cellPosition, CellPosition placedLeaf)
+        {
+            // Если направление переопределено - проверяем конкретное
+            if (config.OverrideDirection)
+            {
+                var futureDirection = grid.Rotate(
+                    grid.GetNearestEdgeInwardDirection(cellPosition),
+                    config.OverriddenDirection);
+
+                return grid.GetNext(cellPosition, futureDirection) == placedLeaf;
+            }
+
+            // Если случайное - проверяем не является ли существующая комната прямым соседом
+            // Если да - есть риск что случайное направление будет смотреть на неё
+            var manhattan = grid.GetManhattan(cellPosition, placedLeaf);
+            if (manhattan != 1)
+                return false;
+
+            // Проверяем: находится ли существующая комната в одном из 4 направлений
+            foreach (var dir in (Direction[])Enum.GetValues(typeof(Direction)))
+            {
+                if (grid.GetNext(cellPosition, dir) == placedLeaf)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

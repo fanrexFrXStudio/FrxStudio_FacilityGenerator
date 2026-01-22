@@ -56,7 +56,7 @@ namespace FrxStudio.Generator
             // Каждый проход по клетке стоит 1 G
             const int oneCellCost = 1;
 
-            // алгоритм звезды использует колекции открытых и закрытых нод, для дальнейшей работы с ними
+            // алгоритм звезды использует коллекции открытых и закрытых нод, для дальнейшей работы с ними
             // сама суть и есть эти списки
 
             // так как поиск пути работает пока в открытом списке есть комнаты, нам нужно
@@ -116,7 +116,8 @@ namespace FrxStudio.Generator
         
         private bool ValidateNeighbord(
             out PathfindNode founded,
-            PathfindNode neighbord, PathfindNode priorityNode,
+            PathfindNode neighbord,
+            PathfindNode priorityNode,
             CellPosition target,
             int oneCellCost = 1)
         {
@@ -139,6 +140,30 @@ namespace FrxStudio.Generator
                 // не валидная нода для обработки, пропускаем до следущего соседа
                 founded = null;
                 return false;
+            }
+
+            // если клетка является фронтом занятой комнаты - нельзя
+            foreach (var dir in (Direction[])Enum.GetValues(typeof(Direction)))
+            {
+                // шаг НАЗАД от текущей клетки
+                var backPos = grid.GetNext(neighbord.Cell.Position, dir);
+
+                if (backPos == CellPosition.Invalid)
+                    continue;
+
+                var backCell = grid.GetCell(backPos);
+                if (backCell == null || backCell.IsBusy == false)
+                    continue;
+
+                // направление от занятой клетки К текущей
+                var frontDir = grid.GetDirectionBetween(backCell.Position, neighbord.Cell.Position);
+
+                // если занятая комната смотрит на текущую клетку - блок
+                if (backCell.Owner.InstanceDirection == frontDir)
+                {
+                    founded = null;
+                    return false;
+                }
             }
 
             var newG = priorityNode.CostFromStart + oneCellCost;

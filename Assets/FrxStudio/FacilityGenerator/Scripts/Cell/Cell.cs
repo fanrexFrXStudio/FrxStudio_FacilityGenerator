@@ -18,9 +18,10 @@ namespace FrxStudio.Generator
             Owner = new();
         }
 
-        public readonly void SetOwner(GameObject instance, Direction instanceDirection)
+        public readonly void SetOwner(
+            GameObject instance, Direction instanceDirection, ScriptableRoomBase reference)
         {
-            Owner.SetOwner(instance, instanceDirection);
+            Owner.SetOwner(instance, instanceDirection, reference);
         }
 
         #region Operator

@@ -72,7 +72,7 @@ namespace FrxStudio.Generator
             return cell.Position;
         }
 
-        public static CellPosition[] GetCells(this Grid grid, Func<CellPosition, bool> predicate)
+        public static CellPosition[] GetCells(this Grid grid, Func<CellPosition, bool> predicate = null)
         {
             var candidates = new List<CellPosition>();
 

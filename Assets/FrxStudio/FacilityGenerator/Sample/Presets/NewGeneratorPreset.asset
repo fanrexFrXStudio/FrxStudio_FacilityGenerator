@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CellSize: 10
   CellSpacing: 0.1
-  CellsCountX: 10
-  CellsCountY: 10
+  CellsCountX: 7
+  CellsCountY: 7
   Rooms:
   - {fileID: 11400000, guid: 903d2b8b72d38474a9b89d74da034e96, type: 2}
   - {fileID: 11400000, guid: 5d85894d3b07bf9439bc266099b87f6f, type: 2}
   - {fileID: 11400000, guid: 1b1cf42b8d3606743a08c69c34caa411, type: 2}
   - {fileID: 11400000, guid: e80dae47d9bd986458473aa2982ffaa9, type: 2}
+  - {fileID: 11400000, guid: a49f9090ab6ebbc4a859ff4cbcf1375c, type: 2}
+  - {fileID: 11400000, guid: 809e3eb949e2286429408f5944bd8e5a, type: 2}

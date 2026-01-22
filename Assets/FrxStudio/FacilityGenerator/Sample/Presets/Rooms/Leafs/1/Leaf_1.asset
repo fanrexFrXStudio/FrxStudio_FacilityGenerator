@@ -16,7 +16,7 @@ MonoBehaviour:
   Prefab: {fileID: 5627876854025078101, guid: d881633fbd1e43b4f9ce3a2dd4c4bc1a, type: 3}
   OverrideDirection: 1
   OverriddenDirection: 0
-  MinCellsFromEdge: -1
-  MaxCellsFromEdge: 2
-  MinCellsFromLeaf: 3
-  Count: 5
+  MinCellsFromEdge: 0
+  MaxCellsFromEdge: 1
+  MinCellsFromLeaf: 1
+  Count: 2

@@ -8,7 +8,7 @@ namespace FrxStudio.Generator
     public class ScriptableInterRoom : ScriptableRoomBase
     {
         [Foldout("Base")]
-        public BranchShape Shape;
+        public InterShape Shape;
 
         [Foldout("Spawn"), Range(1, 99), SerializeField]
         private byte spawnChance;
@@ -18,7 +18,7 @@ namespace FrxStudio.Generator
 
     public enum InterShape
     {
-        CShape,
-        Hallway
+        CrossShape,
+        TShape
     }
 }

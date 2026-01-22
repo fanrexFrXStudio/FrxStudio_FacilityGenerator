@@ -43,10 +43,10 @@ namespace FrxStudio.Generator
 
         private void Awake()
         {
+            initialSeed = seed;
+
             if (generateInAwake)
                 Generate();
-
-            initialSeed = seed;
         }
 
         #endregion
@@ -71,7 +71,7 @@ namespace FrxStudio.Generator
 
             var instance = Instantiate(room.Prefab, position.WorldPosition, grid.DirectionToEuler(direction));
             
-            cell.SetOwner(instance, direction);
+            cell.SetOwner(instance, direction, room);
             grid.SetCell(position, cell);
 
             spawned.Add(instance);
@@ -141,7 +141,7 @@ namespace FrxStudio.Generator
 
         private bool InitializeBranch()
         {
-            branchGenerator = new(grid, leafGenerator, preset, this);
+            branchGenerator = new(grid, leafGenerator, preset, this, random);
             branchGenerator.ConnectBranch();
             gizmo.AddDrawable(branchGenerator);
 

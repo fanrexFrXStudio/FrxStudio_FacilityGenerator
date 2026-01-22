@@ -10,9 +10,7 @@ namespace FrxStudio.Generator
         {
             get
             {
-                if (cachedDirections == null)
-                    cachedDirections = (Direction[])Enum.GetValues(typeof(Direction));
-
+                cachedDirections ??= (Direction[])Enum.GetValues(typeof(Direction));
                 return cachedDirections;
             }
             set => cachedDirections = value;
@@ -57,7 +55,7 @@ namespace FrxStudio.Generator
                 Direction.Down => new(0, -1),
                 Direction.Right => new(1, 0),
                 Direction.Left => new(-1, 0),
-                // невозможно
+                // unreal
                 _ => throw new ArgumentOutOfRangeException(nameof(to), to, null)
             };
 
@@ -95,26 +93,26 @@ namespace FrxStudio.Generator
             if (position == CellPosition.Invalid)
                 return CellPosition.Invalid;
 
-            var leftDist = position.X;
-            var rightDist = grid.CellsCountX - 1 - position.X;
-            var downDist = position.Y;
-            var upDist = grid.CellsCountY - 1 - position.Y;
+            var leftDistance = position.X;
+            var rightDistance = grid.CellsCountX - 1 - position.X;
+            var downDistance = position.Y;
+            var upDistance = grid.CellsCountY - 1 - position.Y;
 
-            var min = Math.Min(Math.Min(leftDist, rightDist), Math.Min(downDist, upDist));
+            var min = Math.Min(Math.Min(leftDistance, rightDistance), Math.Min(downDistance, upDistance));
 
-            if (min == leftDist)
+            if (min == leftDistance)
             {
                 var cell = grid.GetCell(0, position.Y);
                 return cell == Cell.Invalid ? CellPosition.Invalid : cell.Position;
             }
 
-            if (min == rightDist)
+            if (min == rightDistance)
             {
                 var cell = grid.GetCell(grid.CellsCountX - 1, position.Y);
                 return cell == Cell.Invalid ? CellPosition.Invalid : cell.Position;
             }
 
-            if (min == downDist)
+            if (min == downDistance)
             {
                 var cell = grid.GetCell(position.X, 0);
                 return cell == Cell.Invalid ? CellPosition.Invalid : cell.Position;
@@ -168,7 +166,7 @@ namespace FrxStudio.Generator
                 Direction.Down => 180,
                 Direction.Right => 90,
                 Direction.Left => 270,
-                // невозможно
+                // unreal
                 _ => throw new Exception()
             };
 
@@ -176,7 +174,28 @@ namespace FrxStudio.Generator
         }
 
         public static Direction GetRandomDirection(this Grid _, System.Random random) =>
-            CachedDirections[random.Next(cachedDirections.Length)];
+            CachedDirections[random.Next(CachedDirections.Length)];
+
+        public static Direction GetRandomDirection(this Grid grid, CellPosition pos, System.Random random)
+        {
+            var validDirections = new List<Direction>();
+
+            foreach (var dir in CachedDirections)
+            {
+                var next = grid.GetNext(pos, dir);
+
+                if (next != CellPosition.Invalid)
+                    validDirections.Add(dir);
+            }
+
+            if (validDirections.Count == 0)
+            {
+                Debug.LogWarning("[Generator]: GridExternal: No valid direction");
+                return Direction.Up;
+            }
+
+            return validDirections[random.Next(validDirections.Count)];
+        }
 
         public static Direction GetDirectionBetween(this Grid _, CellPosition from, CellPosition to)
         {

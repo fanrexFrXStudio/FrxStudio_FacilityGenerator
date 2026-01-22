@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
-    public class BranchGenerator : IGizmoDrawable
+    public class BranchGenerator
     {
         private class PathNode
         {
@@ -21,7 +21,6 @@ namespace FrxStudio.Generator
         private readonly System.Random random;
 
         private readonly Dictionary<CellPosition, PathNode> pathMarkers = new();
-        private PathfindNode debugPath;
 
         public BranchGenerator(
             Grid grid, LeafGenerator leafGenerator,
@@ -107,8 +106,6 @@ namespace FrxStudio.Generator
                     Debug.LogError($"[Generator]: No path found from {fromStart} to {toStart}");
                     return false;
                 }
-
-                debugPath = pathEnd;
 
                 // mark exits each cell path
                 MarkPathExits(pathEnd, fromLeaf, toLeaf);
@@ -240,24 +237,5 @@ namespace FrxStudio.Generator
             return (cShapes[random.Next(cShapes.Length)],
                 BranchExtension.GetCShapeDirection(exits));
         }
-
-        #region Debug
-
-        public void DrawGizmo()
-        {
-            if (debugPath == null)
-                return;
-
-            var current = debugPath;
-
-            while (current != null)
-            {
-                Gizmos.color = new(0, 1, 0, 0.35f);
-                Gizmos.DrawCube(current.Cell.Position.WorldPosition, preset.CellSize * Vector3.one);
-                current = current.Parent;
-            }
-        }
-
-        #endregion
     }
 }

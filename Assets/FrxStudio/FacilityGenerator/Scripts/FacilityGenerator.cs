@@ -108,7 +108,7 @@ namespace FrxStudio.Generator
                     break;
                 }
 
-                Debug.Log("[Generator]: Failed to initialize leafs. Attempt " + (attempt + 1));
+                Debug.LogWarning("[Generator]: Failed to spawn. Attempt " + (attempt + 1));
                 random = new(RandomSeed);
                 ClearSpawned();
             }
@@ -116,7 +116,7 @@ namespace FrxStudio.Generator
             stopWatch.Stop();
 
             Debug.Log("[Generator]: <color=green>" +
-                $"Successfully generated in {stopWatch.ElapsedMilliseconds} milliseconds</color>");
+                $"Successfully generated in {stopWatch.Elapsed.TotalMilliseconds:F3} milliseconds</color>");
         }
 
         private void InitializeRandom()
@@ -142,10 +142,7 @@ namespace FrxStudio.Generator
         private bool InitializeBranch()
         {
             branchGenerator = new(grid, leafGenerator, preset, this, random);
-            branchGenerator.ConnectBranch();
-            gizmo.AddDrawable(branchGenerator);
-
-            return true;
+            return branchGenerator.ConnectBranch();
         }
 
         #endregion

@@ -63,7 +63,7 @@ namespace FrxStudio.Generator
         private Direction GetDirection(ScriptableLeafRoom config, CellPosition position)
         {
             if (!config.OverrideDirection)
-                return grid.GetRandomDirection(random);
+                return grid.GetRandomDirection(position, random);
 
             return grid.Rotate(
                 grid.GetNearestEdgeInwardDirection(position),

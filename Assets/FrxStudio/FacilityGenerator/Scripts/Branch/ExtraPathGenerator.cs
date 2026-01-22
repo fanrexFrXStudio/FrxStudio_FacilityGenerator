@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Presets;
 using UnityEngine;
 
 namespace FrxStudio.Generator
@@ -55,7 +54,7 @@ namespace FrxStudio.Generator
             if (leafs == null || leafs.Length < minLeafsCount)
                 return;
 
-            var type = preset.ExtraPathStrategy;
+            var type = preset.ExtraPathType;
 
             switch (type)
             {

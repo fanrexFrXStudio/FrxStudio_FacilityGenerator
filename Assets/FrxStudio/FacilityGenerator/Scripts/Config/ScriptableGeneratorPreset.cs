@@ -13,42 +13,33 @@ namespace FrxStudio.Generator
         [Foldout("Cell"), Range(.01f, 5)]
         public float CellSpacing;
 
-        [Foldout("Cell"), Range(1, 50)]
+        [Foldout("Cell"), Range(3, 50)]
         public int CellsCountX, CellsCountY;
 
         public ScriptableRoomBase[] Rooms;
 
         [Foldout("Extra Paths")]
-        [Tooltip("Стратегия создания дополнительных путей")]
-        public ExtraPathStrategy ExtraPathStrategy = ExtraPathStrategy.ByDistance;
+        public ExtraPathStrategy ExtraPathType = ExtraPathStrategy.ByDistance;
 
-        [Foldout("Extra Paths")]
-        [ShowIf(nameof(ShowFixedCount))]
-        [Tooltip("Точное количество дополнительных путей (для стратегии Fixed)")]
-        [Range(1, 10)]
+        [Foldout("Extra Paths"), ShowIf(nameof(ShowFixedCount)), 
+            Tooltip("Fixed extra paths count"), Range(1, 10)]
         public int ExtraPathCount = 2;
 
-        [Foldout("Extra Paths")]
-        [ShowIf(nameof(ShowByDistance))]
-        [Tooltip("Минимальная дистанция между комнатами для создания доп. пути")]
-        [Range(3, 20)]
+        [Foldout("Extra Paths"), ShowIf(nameof(ShowByDistance)),
+            Tooltip("Min distance between leafs, to create extra path"), Range(1, 20)]
         public int ExtraPathMinDistance = 5;
 
-        [Foldout("Extra Paths")]
-        [ShowIf(nameof(ShowByDistance))]
-        [Tooltip("Максимальное количество доп. путей (для стратегии ByDistance)")]
-        [Range(1, 10)]
+        [Foldout("Extra Paths"), ShowIf(nameof(ShowByDistance)),
+            Tooltip("Max extra paths count"), Range(1, 10)]
         public int ExtraPathMaxCount = 3;
 
-        [Foldout("Extra Paths")]
-        [ShowIf(nameof(ShowByLeafCount))]
-        [Tooltip("Процент от количества комнат (0.5 = 50%)")]
-        [Range(0f, 1f)]
+        [Foldout("Extra Paths"), ShowIf(nameof(ShowByLeafCount)),
+            Tooltip("Percent of leafs count (0.5 = 50%) Процент от количества комнат (0.5 = 50%)"), Range(0f, 1f)]
         public float ExtraPathPercentage = 0.3f;
 
-        private bool ShowFixedCount => ExtraPathStrategy == ExtraPathStrategy.Fixed;
-        private bool ShowByDistance => ExtraPathStrategy == ExtraPathStrategy.ByDistance;
-        private bool ShowByLeafCount => ExtraPathStrategy == ExtraPathStrategy.ByLeafCount;
+        private bool ShowFixedCount => ExtraPathType == ExtraPathStrategy.Fixed;
+        private bool ShowByDistance => ExtraPathType == ExtraPathStrategy.ByDistance;
+        private bool ShowByLeafCount => ExtraPathType == ExtraPathStrategy.ByLeafCount;
     }
 
     public enum ExtraPathStrategy

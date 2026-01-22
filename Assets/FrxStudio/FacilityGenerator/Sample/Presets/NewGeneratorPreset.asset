@@ -23,3 +23,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e80dae47d9bd986458473aa2982ffaa9, type: 2}
   - {fileID: 11400000, guid: a49f9090ab6ebbc4a859ff4cbcf1375c, type: 2}
   - {fileID: 11400000, guid: 809e3eb949e2286429408f5944bd8e5a, type: 2}
+  ExtraPathStrategy: 2
+  ExtraPathCount: 2
+  ExtraPathMinDistance: 3
+  ExtraPathMaxCount: 1
+  ExtraPathPercentage: 0.3

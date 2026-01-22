@@ -19,4 +19,4 @@ MonoBehaviour:
   MinCellsFromEdge: 0
   MaxCellsFromEdge: 1
   MinCellsFromLeaf: 1
-  Count: 2
+  Count: 3

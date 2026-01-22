@@ -1,4 +1,5 @@
 ﻿using NaughtyAttributes;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace FrxStudio.Generator
 
         [SerializeField]
         private ScriptableGeneratorPreset preset;
-        
+
         [SerializeField, ReadOnly]
         private FacilityGeneratorGizmo gizmo;
 
@@ -70,7 +71,7 @@ namespace FrxStudio.Generator
             }
 
             var instance = Instantiate(room.Prefab, position.WorldPosition, grid.DirectionToEuler(direction));
-            
+
             cell.SetOwner(instance, direction, room);
             grid.SetCell(position, cell);
 
@@ -79,7 +80,7 @@ namespace FrxStudio.Generator
             return true;
         }
 
-        [Button("ClearSpawned")]
+        [Button("ClearSpawned", EButtonEnableMode.Playmode)]
         public void ClearSpawned()
         {
             foreach (var obj in spawned)
@@ -89,8 +90,37 @@ namespace FrxStudio.Generator
             gizmo.ClearAllDrawables();
         }
 
-        [Button("Generate")]
-        public void Generate()
+        [Button("Start stress test", EButtonEnableMode.Playmode)]
+        private void GeneratorStressTest()
+        {
+            const int iterations = 1000;
+
+            StartCoroutine(ForEachGenerate(iterations));
+
+            IEnumerator ForEachGenerate(int iterations)
+            {
+                var failedCount = 0;
+
+                for (var i = 0; i < iterations; i++)
+                {
+                    seed = 0;
+
+                    if (!Generate(false))
+                    {
+                        failedCount++;
+                        Debug.LogWarning("[Generator]: StressTest: In iteration " + i + ", not generated");
+                    }                   
+                    
+                    // skip 1 frame
+                    yield return null;
+                }
+
+                Debug.Log("[Generator]: StressTest: Ended, failed generations: " + failedCount);
+            }
+        }
+
+        [Button("Generate", EButtonEnableMode.Playmode)]
+        public bool Generate(bool logging = true)
         {
             var stopWatch = new System.Diagnostics.Stopwatch();
             stopWatch.Start();
@@ -98,25 +128,41 @@ namespace FrxStudio.Generator
             InitializeRandom();
             ClearSpawned();
 
-            InitializeGrid();
+            var isSpawned = false;
 
             for (var attempt = 0; attempt < attemps; attempt++)
             {
+                InitializeGrid();
+
                 if (InitializeLeafs() &&
                     InitializeBranch())
                 {
+                    isSpawned = true;
                     break;
                 }
 
-                Debug.LogWarning("[Generator]: Failed to spawn. Attempt " + (attempt + 1));
-                random = new(RandomSeed);
+                if (logging)
+                    Debug.LogWarning("[Generator]: Failed to spawn. Attempt " + (attempt + 1));
+
+                seed = RandomSeed;
+                random = new(seed);
+
                 ClearSpawned();
+            }
+
+            if (!isSpawned)
+            {
+                Debug.LogError("[Generator]: Generation not spawned :( Check the configuration");
+                return false;
             }
 
             stopWatch.Stop();
 
-            Debug.Log("[Generator]: <color=green>" +
-                $"Successfully generated in {stopWatch.Elapsed.TotalMilliseconds:F3} milliseconds</color>");
+            if (logging)
+                Debug.Log("[Generator]: <color=green>" +
+                    $"Successfully generated in {stopWatch.Elapsed.TotalMilliseconds:F3} milliseconds</color>");
+
+            return true;
         }
 
         private void InitializeRandom()

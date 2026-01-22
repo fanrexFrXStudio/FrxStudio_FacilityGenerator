@@ -5,6 +5,22 @@ namespace FrxStudio.Generator
 {
     public static class BranchExtension
     {
+        #region Extra paths
+
+        public static string GetPairKey(CellPosition from, CellPosition to)
+        {
+            var hash1 = from.GetHashCode();
+            var hash2 = to.GetHashCode();
+
+            if (hash1 > hash2)
+                return $"{hash1}-{hash2}";
+
+            return $"{hash2}-{hash1}";
+        }
+
+
+        #endregion
+
         public static (int remainingIndex, int connectedIndex) GetClosestPair(
             List<CellPosition> remaining,
             List<CellPosition> connected,

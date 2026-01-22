@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace FrxStudio.Generator
 {
-    public class Pathinder
+    public class Pathfinder
     {
         private readonly Grid grid;
 
@@ -13,7 +12,7 @@ namespace FrxStudio.Generator
         private readonly List<PathfindNode> openedNodes = new();
         private readonly HashSet<PathfindNode> closedNodes = new();
 
-        public Pathinder(Grid grid)
+        public Pathfinder(Grid grid)
         {
             this.grid = grid;
         }
@@ -106,10 +105,7 @@ namespace FrxStudio.Generator
             }
 
             if (founded == null)
-            {
-                Debug.LogWarning("Path not founded");
                 return null;
-            }
 
             return founded;
         }

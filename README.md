@@ -3,7 +3,7 @@ It's DONE
 Procedural generator of the complex, as in SCP CB
 Fully determined
 
-my telegram channel: t.me/frxStudio
+my telegram channel: t.me/frxStudionew
 
 
 documentation in creating

@@ -8,18 +8,20 @@ namespace FrxStudio.Generator
     {
         public IReadOnlyList<CellPosition> PlacedLeafs => placedLeafs;
 
-        private readonly ScriptableGeneratorPreset preset;
         private readonly FacilityGenerator generator;
         private readonly Grid grid;
+
+        private readonly ScriptableGeneratorPreset preset;
         private readonly Random random;
 
         private readonly List<CellPosition> placedLeafs = new();
 
         public LeafGenerator(ScriptableGeneratorPreset preset, FacilityGenerator generator, Grid grid, Random random)
         {
-            this.preset = preset;
             this.generator = generator;
             this.grid = grid;
+
+            this.preset = preset;
             this.random = random;
         }
 
@@ -28,10 +30,7 @@ namespace FrxStudio.Generator
             var leafs = preset.Rooms.OfType<ScriptableLeafRoom>().ToArray();
 
             if (leafs.Length == 0)
-            {
-                UnityEngine.Debug.LogWarning("[Generator]: Leafs count is 0");
                 return false;
-            }
 
             foreach (var leaf in leafs)
             {
@@ -40,18 +39,12 @@ namespace FrxStudio.Generator
                     var position = GetLeafPosition(leaf);
 
                     if (position == CellPosition.Invalid)
-                    {
-                        UnityEngine.Debug.Log("[Generator]: No valid position found for leaf");
                         return false;
-                    }
 
                     var direction = GetDirection(leaf, position);
 
                     if (!generator.Spawn(leaf, position, direction))
-                    {
-                        UnityEngine.Debug.Log("[Generator]: Leaf failed to spawn");
                         return false;
-                    }
 
                     placedLeafs.Add(position);
                 }
@@ -103,7 +96,7 @@ namespace FrxStudio.Generator
             {
                 if (IsTooCloseToLeaf(config, cellPosition, placedLeaf) ||
                     IsLookedAtByExistingLeaf(cellPosition, placedLeaf) ||
-                    WouldLookAtExistingLeaf(config, cellPosition, placedLeaf))
+                    IsLookAtExistingLeaf(config, cellPosition, placedLeaf))
                     return true;
             }
 
@@ -120,9 +113,8 @@ namespace FrxStudio.Generator
             return grid.GetNext(placedLeaf, placedLeafDirection) == cellPosition;
         }
 
-        private bool WouldLookAtExistingLeaf(ScriptableLeafRoom config, CellPosition cellPosition, CellPosition placedLeaf)
+        private bool IsLookAtExistingLeaf(ScriptableLeafRoom config, CellPosition cellPosition, CellPosition placedLeaf)
         {
-            // Если направление переопределено - проверяем конкретное
             if (config.OverrideDirection)
             {
                 var futureDirection = grid.Rotate(
@@ -132,14 +124,10 @@ namespace FrxStudio.Generator
                 return grid.GetNext(cellPosition, futureDirection) == placedLeaf;
             }
 
-            // Если случайное - проверяем не является ли существующая комната прямым соседом
-            // Если да - есть риск что случайное направление будет смотреть на неё
-            var manhattan = grid.GetManhattan(cellPosition, placedLeaf);
-            if (manhattan != 1)
+            if (grid.GetManhattan(cellPosition, placedLeaf) != 1)
                 return false;
 
-            // Проверяем: находится ли существующая комната в одном из 4 направлений
-            foreach (var dir in (Direction[])Enum.GetValues(typeof(Direction)))
+            foreach (var dir in GridExternal.CachedDirections)
             {
                 if (grid.GetNext(cellPosition, dir) == placedLeaf)
                     return true;

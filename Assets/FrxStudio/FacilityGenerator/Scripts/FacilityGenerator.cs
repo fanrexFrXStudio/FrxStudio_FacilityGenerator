@@ -90,10 +90,11 @@ namespace FrxStudio.Generator
             gizmo.ClearAllDrawables();
         }
 
-        [Button("Start stress test", EButtonEnableMode.Playmode)]
+        [Button("Start stress test (2500 iterations, and result)", EButtonEnableMode.Playmode)]
         private void GeneratorStressTest()
         {
-            const int iterations = 1000;
+            const int iterations = 2500;
+            const int maxFailedIterationsAllowed = 15;
 
             StartCoroutine(ForEachGenerate(iterations));
 
@@ -116,6 +117,15 @@ namespace FrxStudio.Generator
                 }
 
                 Debug.Log("[Generator]: StressTest: Ended, failed generations: " + failedCount);
+
+                if (failedCount > maxFailedIterationsAllowed)
+                {
+                    Debug.LogWarning("[Generator]: StressTest: Try to change configuration, current is not stable");
+                }
+                else
+                {
+                    Debug.Log("[Generator]: StressTest: Current configuration is stable!");
+                }
             }
         }
 

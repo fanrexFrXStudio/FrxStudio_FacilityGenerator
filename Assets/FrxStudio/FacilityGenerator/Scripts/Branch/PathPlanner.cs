@@ -8,7 +8,6 @@ namespace FrxStudio.Generator
     {
         private readonly Grid grid;
         private readonly LeafGenerator leafGenerator;
-
         private readonly Pathfinder pathfinder;
 
         private readonly Dictionary<CellPosition, BranchNode> pathMarkers = new();
@@ -21,6 +20,8 @@ namespace FrxStudio.Generator
             this.pathfinder = pathfinder;
         }
 
+        public Dictionary<CellPosition, BranchNode> GetPathMarkers() => pathMarkers;
+
         public bool MarkAllPaths(bool logging = false)
         {
             var leaves = leafGenerator.PlacedLeafs?.ToArray();
@@ -29,7 +30,11 @@ namespace FrxStudio.Generator
                 return true;
 
             var remaining = new List<CellPosition>(leaves);
-            var connected = new List<CellPosition> { remaining[0] };
+            var connected = new List<CellPosition>
+            {
+                remaining[0]
+            };
+
             remaining.RemoveAt(0);
 
             // connect leafs mst
@@ -53,6 +58,7 @@ namespace FrxStudio.Generator
                 {
                     if (logging)
                         Debug.LogError($"[Generator]: Cannot get start positions for path");
+
                     return false;
                 }
 
@@ -62,6 +68,7 @@ namespace FrxStudio.Generator
                 {
                     if (logging)
                         Debug.LogError($"[Generator]: No path found from {fromStart} to {toStart}");
+
                     return false;
                 }
 
@@ -112,11 +119,6 @@ namespace FrxStudio.Generator
                 pathMarkers[pathPos] = new BranchNode { Position = pathPos };
 
             pathMarkers[pathPos].Exits = pathMarkers[pathPos].Exits.Add(dir);
-        }
-
-        public Dictionary<CellPosition, BranchNode> GetPathMarkers()
-        {
-            return pathMarkers;
         }
     }
 }

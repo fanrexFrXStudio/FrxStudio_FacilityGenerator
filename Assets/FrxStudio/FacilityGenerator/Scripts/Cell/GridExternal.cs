@@ -6,7 +6,7 @@ namespace FrxStudio.Generator
 {
     public static class GridExternal
     {
-        private static Direction[] CachedDirections
+        public static Direction[] CachedDirections
         {
             get
             {

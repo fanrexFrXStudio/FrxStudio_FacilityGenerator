@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04cc9d08c25ca564f9cb1a8de2eff109, type: 3}
-  m_Name: Leaf_2
+  m_Name: Leaf_3
   m_EditorClassIdentifier: 
   Name: Leaf_1
-  Prefab: {fileID: 5627876854025078101, guid: b8a61792171b7cd4a98c20ee1f38d117, type: 3}
-  Count: 4
-  OverrideDirection: 0
-  OverriddenDirection: 0
-  MinCellsFromEdge: 1
-  MaxCellsFromEdge: 2
-  MinCellsFromLeaf: 0
+  Prefab: {fileID: 5627876854025078101, guid: 113b969f6a810ab4193faf370dc176d7, type: 3}
+  Count: 2
+  OverrideDirection: 1
+  OverriddenDirection: 1
+  MinCellsFromEdge: 3
+  MaxCellsFromEdge: 5
+  MinCellsFromLeaf: 2

@@ -10,7 +10,7 @@ namespace FrxStudio.Generator
         [Foldout("Base")]
         public InterShape Shape;
 
-        [Foldout("Spawn"), Range(1, 99), SerializeField]
+        [Foldout("Spawn"), Range(1, 100), SerializeField]
         private byte spawnChance;
 
         public override byte SpawnChance => spawnChance;

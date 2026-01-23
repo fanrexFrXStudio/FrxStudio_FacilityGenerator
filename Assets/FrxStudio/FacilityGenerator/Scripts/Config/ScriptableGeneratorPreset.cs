@@ -8,15 +8,24 @@ namespace FrxStudio.Generator
     public class ScriptableGeneratorPreset : ScriptableObject
     {
         [Foldout("Cell"), Range(1, 50)]
-        public float CellSize;
+        public float CellSize = 10;
 
         [Foldout("Cell"), Range(.01f, 5)]
-        public float CellSpacing;
+        public float CellSpacing = 0.1f;
 
         [Foldout("Cell"), Range(3, 50)]
-        public int CellsCountX, CellsCountY;
+        public int CellsCountX = 7, CellsCountY = 7;
 
         public ScriptableRoomBase[] Rooms;
+
+        [Foldout("Required Room"), Range(.05f, 0.5f)]
+        public float MustRoomBaseChance = 0.15f;
+
+        [Foldout("Required Room"), Range(1.1f, 2.0f)]
+        public float MustRoomChanceMultiplier = 1.3f;
+
+        [Foldout("Required Room"), Range(0f, 2f)]
+        public float MustRoomChanceResetValue = 2;
 
         [Foldout("Extra Paths")]
         public ExtraPathStrategy ExtraPathType = ExtraPathStrategy.ByDistance;

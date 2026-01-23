@@ -1,23 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
 namespace FrxStudio.Generator
 {
-    public class RoomSpawner
+    public class BranchSpawner
     {
         private readonly Grid grid;
         private readonly FacilityGenerator generator;
         private readonly ScriptableGeneratorPreset preset;
         private readonly System.Random random;
 
-        public RoomSpawner(Grid grid, FacilityGenerator generator, ScriptableGeneratorPreset preset, System.Random random)
+        private readonly Dictionary<ScriptableRoomBase, byte> remainingRequiredRooms = new();
+
+        public BranchSpawner(Grid grid, FacilityGenerator generator, ScriptableGeneratorPreset preset, System.Random random)
         {
             this.grid = grid;
             this.generator = generator;
             this.preset = preset;
             this.random = random;
+
+            InitializeRequiredRooms();
+        }
+
+        private void InitializeRequiredRooms()
+        {
+            var branchRooms = preset.Rooms.OfType<ScriptableBranchRoom>();
+            var interRooms = preset.Rooms.OfType<ScriptableInterRoom>();
+
+            var relevantRooms = branchRooms.Cast<ScriptableRoomBase>()
+                .Concat(interRooms.Cast<ScriptableRoomBase>());
+
+            foreach (var room in relevantRooms)
+            {
+                if (room.SpawnChance == 100 && room.Count > 0)
+                    remainingRequiredRooms[room] = room.Count;
+            }
         }
 
         public bool SpawnRoomsOnPaths(Dictionary<CellPosition, BranchNode> pathMarkers)
@@ -49,7 +66,8 @@ namespace FrxStudio.Generator
                 if (grid.GetCell(marker.Position).IsBusy && grid.GetCell(marker.Position).Owner != null)
                     continue;
 
-                var (roomToSpawn, spawnDirection) = DetermineRoomType(marker, marker.Exits.Count, hallways, cShapes, tShapes, crosses);
+                var (roomToSpawn, spawnDirection) = DetermineRoomType(
+                    marker, marker.Exits.Count, hallways, cShapes, tShapes, crosses);
 
                 if (roomToSpawn == null)
                 {
@@ -62,7 +80,18 @@ namespace FrxStudio.Generator
                     Debug.LogError($"[Generator]: BranchGenerator: Failed to spawn {roomToSpawn.name} at {marker.Position}");
                     return false;
                 }
+
+                if (remainingRequiredRooms.ContainsKey(roomToSpawn))
+                {
+                    remainingRequiredRooms[roomToSpawn]--;
+
+                    if (remainingRequiredRooms[roomToSpawn] == 0)
+                        remainingRequiredRooms.Remove(roomToSpawn);
+                }
             }
+
+            if (remainingRequiredRooms.Count > 0)
+                return false;
 
             return true;
         }
@@ -75,10 +104,24 @@ namespace FrxStudio.Generator
             return exitCount switch
             {
                 2 => GetCorridorRoom(marker, hallways, cShapes),
-                3 => (tShapes[random.Next(tShapes.Length)], BranchExtension.GetTShapeDirection(marker.Exits)),
-                4 => (crosses[random.Next(crosses.Length)], Direction.Up),
+                3 => GetTShapeRoom(marker, tShapes),
+                4 => GetCrossRoom(crosses),
                 _ => (null, Direction.Up)
             };
+        }
+
+        private (ScriptableRoomBase room, Direction direction) GetTShapeRoom(
+            BranchNode marker,
+            ScriptableInterRoom[] tShapes)
+        {
+            var roomToSpawn = SelectRoom(tShapes);
+            return (roomToSpawn, BranchExtension.GetTShapeDirection(marker.Exits));
+        }
+
+        private (ScriptableRoomBase room, Direction direction) GetCrossRoom(
+            ScriptableInterRoom[] crosses)
+        {
+            return (SelectRoom(crosses), Direction.Up);
         }
 
         private (ScriptableRoomBase room, Direction direction) GetCorridorRoom(
@@ -90,11 +133,26 @@ namespace FrxStudio.Generator
 
             if ((exits.Has(Direction.Up) && exits.Has(Direction.Down)) ||
                 (exits.Has(Direction.Left) && exits.Has(Direction.Right)))
-                return (hallways[random.Next(hallways.Length)],
-                    exits.Has(Direction.Up) ? Direction.Up : Direction.Right);
+            {
+                return (SelectRoom(hallways), exits.Has(Direction.Up) ? Direction.Up : Direction.Right);
+            }
 
-            return (cShapes[random.Next(cShapes.Length)],
-                BranchExtension.GetCShapeDirection(exits));
+            return (SelectRoom(cShapes), BranchExtension.GetCShapeDirection(exits));
+        }
+
+        private ScriptableRoomBase SelectRoom(ScriptableRoomBase[] rooms)
+        {
+            var availableRequired = rooms.Where(r => remainingRequiredRooms.ContainsKey(r)).ToArray();
+
+            if (availableRequired.Length > 0)
+                return availableRequired[random.Next(availableRequired.Length)];
+
+            var regularRooms = rooms.Where(r => r.SpawnChance < 100).ToArray();
+
+            if (regularRooms.Length > 0)
+                return regularRooms[random.Next(regularRooms.Length)];
+
+            return rooms[random.Next(rooms.Length)];
         }
     }
 }

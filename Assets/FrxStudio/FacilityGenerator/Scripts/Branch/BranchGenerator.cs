@@ -3,7 +3,7 @@
     public class BranchGenerator
     {
         private readonly PathPlanner pathPlanner;
-        private readonly RoomSpawner roomSpawner;
+        private readonly BranchSpawner roomSpawner;
         private readonly ExtraPathGenerator extraPathGenerator;
 
         private readonly Pathfinder pathfinder;
@@ -17,7 +17,7 @@
             pathfinder = new(grid);
 
             pathPlanner = new PathPlanner(grid, leafGenerator, pathfinder);
-            roomSpawner = new RoomSpawner(grid, generator, preset, random);
+            roomSpawner = new BranchSpawner(grid, generator, preset, random);
             extraPathGenerator = new ExtraPathGenerator(leafGenerator, this, pathfinder, grid, preset, random);
         }
 

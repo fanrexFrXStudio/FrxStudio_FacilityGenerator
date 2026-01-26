@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// The container of cells
+    /// </summary>
     public class Grid : IGizmoDrawable
     {
         #region Var
@@ -21,6 +24,8 @@ namespace FrxStudio.Generator
 
         private readonly Color cellEmptyColor = new(0, 1, 1, .1f);
         private readonly Color cellBusyColor = new(1, 1, 1, .5f);
+
+        private readonly Color cellAdditionalColor = new(1, 0, 0, .75f);
 
         // text of cell position on editor
         private static readonly GUIStyle сellLabelStyle = new()
@@ -119,8 +124,16 @@ namespace FrxStudio.Generator
                 }
                 else
                 {
-                    Gizmos.color = cellBusyColor;
-                    Gizmos.DrawCube(cell.Position.WorldPosition, Vector3.one * preset.CellSize);
+                    if (cell.Owner.IsRoomReserved)
+                    {
+                        Gizmos.color = cellAdditionalColor;
+                        Gizmos.DrawCube(cell.Position.WorldPosition, Vector3.one * preset.CellSize);
+                    }
+                    else
+                    {
+                        Gizmos.color = cellBusyColor;
+                        Gizmos.DrawCube(cell.Position.WorldPosition, Vector3.one * preset.CellSize);
+                    }
                 }
 
                 // draw text

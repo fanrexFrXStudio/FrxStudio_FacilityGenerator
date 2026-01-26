@@ -12,6 +12,9 @@ namespace FrxStudio.Generator
         Down = 1 << 3
     }
 
+    /// <summary>
+    /// Bit - mask of exits
+    /// </summary>
     public class ExitsMask : IEquatable<ExitsMask>
     {
         private readonly ExitBits bits;
@@ -45,11 +48,15 @@ namespace FrxStudio.Generator
             _ => ExitBits.None
         };
 
+        #region Operator
+
         public bool Equals(ExitsMask other) => bits == other.bits;
         public override bool Equals(object obj) => obj is ExitsMask other && Equals(other);
         public override int GetHashCode() => (int)bits;
 
         public static bool operator ==(ExitsMask a, ExitsMask b) => a.bits == b.bits;
         public static bool operator !=(ExitsMask a, ExitsMask b) => a.bits != b.bits;
+
+        #endregion
     }
 }

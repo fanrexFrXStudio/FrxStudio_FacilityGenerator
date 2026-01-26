@@ -1,5 +1,8 @@
 ﻿namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// The main generator of intersections and branches
+    /// </summary>
     public class BranchGenerator
     {
         private readonly PathPlanner pathPlanner;

@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// Generator of extra paths ( additional paths besides the main one )
+    /// </summary>
     public sealed class ExtraPathGenerator
     {
         private readonly LeafGenerator leafGenerator;
@@ -16,7 +19,6 @@ namespace FrxStudio.Generator
         private readonly System.Random random;
 
         private readonly HashSet<string> existingConnections = new();
-        private readonly Dictionary<CellPosition, BranchNode> pathMarkers = new();
 
         public ExtraPathGenerator(
             LeafGenerator leafGenerator, BranchGenerator branchGenerator,

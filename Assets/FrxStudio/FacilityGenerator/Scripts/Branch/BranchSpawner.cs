@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// The spawner of branch rooms
+    /// </summary>
     public class BranchSpawner
     {
         private readonly Grid grid;
@@ -22,6 +26,9 @@ namespace FrxStudio.Generator
             InitializeRequiredRooms();
         }
 
+        /// <summary>
+        /// Initialize must spawn branches and intersections
+        /// </summary>
         private void InitializeRequiredRooms()
         {
             var branchRooms = preset.Rooms.OfType<ScriptableBranchRoom>();
@@ -37,6 +44,9 @@ namespace FrxStudio.Generator
             }
         }
 
+        /// <summary>
+        /// Create rooms in paths
+        /// </summary>
         public bool SpawnRoomsOnPaths(Dictionary<CellPosition, BranchNode> pathMarkers)
         {
             var corridorRooms = preset.Rooms.OfType<ScriptableBranchRoom>().ToArray();
@@ -66,8 +76,7 @@ namespace FrxStudio.Generator
                 if (grid.GetCell(marker.Position).IsBusy && grid.GetCell(marker.Position).Owner != null)
                     continue;
 
-                var (roomToSpawn, spawnDirection) = DetermineRoomType(
-                    marker, marker.Exits.Count, hallways, cShapes, tShapes, crosses);
+                var (roomToSpawn, spawnDirection) = DetermineRoomType(marker, hallways, cShapes, tShapes, crosses);
 
                 if (roomToSpawn == null)
                 {
@@ -96,12 +105,15 @@ namespace FrxStudio.Generator
             return true;
         }
 
+        /// <summary>
+        /// Get scriptable room and direction, by exitsCount
+        /// </summary>
         private (ScriptableRoomBase room, Direction direction) DetermineRoomType(
-            BranchNode marker, int exitCount,
+            BranchNode marker,
             ScriptableBranchRoom[] hallways, ScriptableBranchRoom[] cShapes,
             ScriptableInterRoom[] tShapes, ScriptableInterRoom[] crosses)
         {
-            return exitCount switch
+            return marker.Exits.Count switch
             {
                 2 => GetCorridorRoom(marker, hallways, cShapes),
                 3 => GetTShapeRoom(marker, tShapes),
@@ -110,12 +122,13 @@ namespace FrxStudio.Generator
             };
         }
 
+        #region Shapes room data
+
         private (ScriptableRoomBase room, Direction direction) GetTShapeRoom(
             BranchNode marker,
             ScriptableInterRoom[] tShapes)
         {
-            var roomToSpawn = SelectRoom(tShapes);
-            return (roomToSpawn, BranchExtension.GetTShapeDirection(marker.Exits));
+            return (SelectRoom(tShapes), BranchExtension.GetTShapeDirection(marker.Exits));
         }
 
         private (ScriptableRoomBase room, Direction direction) GetCrossRoom(
@@ -139,6 +152,8 @@ namespace FrxStudio.Generator
 
             return (SelectRoom(cShapes), BranchExtension.GetCShapeDirection(exits));
         }
+
+        #endregion
 
         private ScriptableRoomBase SelectRoom(ScriptableRoomBase[] rooms)
         {

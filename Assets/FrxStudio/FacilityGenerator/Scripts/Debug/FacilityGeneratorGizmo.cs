@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// Drawer generator components gizmo
+    /// </summary>
     [RequireComponent(typeof(FacilityGenerator))]
     public class FacilityGeneratorGizmo : MonoBehaviour
     {

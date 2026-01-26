@@ -4,8 +4,14 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
-    public static class GridExternal
+    /// <summary>
+    /// Contains static functions that dont need to be in Grid
+    /// </summary>
+    public static class GridExtension
     {
+        /// <summary>
+        /// All directions, just get directions instead of converting all directions through crutches
+        /// </summary>
         public static Direction[] CachedDirections
         {
             get
@@ -18,11 +24,14 @@ namespace FrxStudio.Generator
 
         private static Direction[] cachedDirections;
 
-        public static CellPosition[] GetNeighbords(
+        /// <summary>
+        /// Return all neighbors by all direction, and by predicate ( if is not null )
+        /// </summary>
+        public static CellPosition[] GetNeighbors(
             this Grid grid, CellPosition from,
             Func<CellPosition, bool> predicate = null)
         {
-            var neighbords = new List<CellPosition>();
+            var neighbors = new List<CellPosition>();
 
             foreach (var direction in CachedDirections)
             {
@@ -34,17 +43,21 @@ namespace FrxStudio.Generator
                 if (predicate != null)
                 {
                     if (predicate(next))
-                        neighbords.Add(next);
+                        neighbors.Add(next);
 
                     continue;
                 }
 
-                neighbords.Add(next);
+                neighbors.Add(next);
             }
 
-            return neighbords.ToArray();
+            return neighbors.ToArray();
         }
 
+        /// <summary>
+        /// Return forward cell position, FROM, TO Direction
+        /// If cell is invalid, return invalid position
+        /// </summary>
         public static CellPosition GetNext(this Grid grid, CellPosition from, Direction to)
         {
             (int x, int y) targetPos;
@@ -70,6 +83,9 @@ namespace FrxStudio.Generator
             return cell.Position;
         }
 
+        /// <summary>
+        /// All cells in grid, by predicate ( if is not null )
+        /// </summary>
         public static CellPosition[] GetCells(this Grid grid, Func<CellPosition, bool> predicate = null)
         {
             var candidates = new List<CellPosition>();
@@ -88,6 +104,9 @@ namespace FrxStudio.Generator
             return candidates.ToArray();
         }
 
+        /// <summary>
+        /// Get nearest edge, by grid and FROM position
+        /// </summary>
         public static CellPosition GetNearestEdgePosition(this Grid grid, CellPosition position)
         {
             if (position == CellPosition.Invalid)
@@ -122,6 +141,10 @@ namespace FrxStudio.Generator
             return topCell == Cell.Invalid ? CellPosition.Invalid : topCell.Position;
         }
 
+        /// <summary>
+        /// Return direction, in grid, FROM nearest edge, FROM position, direction is look in center
+        /// </summary>
+        /// <returns></returns>
         public static Direction GetNearestEdgeInwardDirection(this Grid grid, CellPosition pos)
         {
             var width = grid.CellsCountX;
@@ -146,6 +169,67 @@ namespace FrxStudio.Generator
             return Direction.Down;        // inward from top border
         }
 
+        public static bool IsValidLargeRoom(
+            this Grid grid,
+            ScriptableRoomBase room,
+            CellPosition position,
+            Direction direction,
+            List<CellPosition> reservedCells)
+        {
+            reservedCells.Clear();
+
+            // Checking base cell
+            var baseCell = grid.GetCell(position);
+
+            if (baseCell == Cell.Invalid)
+                return false;
+
+            // If room is not large or not have additional cells, is true
+            if (!room.Large || room.AdditionalCells == null || room.AdditionalCells.Length == 0)
+                return true;
+
+            // Check all additional cells by direction
+            foreach (var offsetVector in room.AdditionalCells)
+            {
+                // Rotate offset by direction
+                var rotatedOffset = RotateOffset(offsetVector, direction);
+
+                var targetX = position.X + rotatedOffset.x;
+                var targetY = position.Y + rotatedOffset.y;
+
+                var targetCell = grid.GetCell(targetX, targetY);
+
+                if (targetCell == Cell.Invalid || targetCell.IsBusy)
+                {
+                    reservedCells.Clear();
+                    return false;
+                }
+
+                reservedCells.Add(targetCell.Position);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Rotate vector offset, by direction
+        /// </summary>
+        private static Vector2Int RotateOffset(Vector2Int offset, Direction direction)
+        {
+            return direction switch
+            {
+                Direction.Up => new Vector2Int(-offset.x, -offset.y),    // 0°
+                Direction.Right => new Vector2Int(-offset.y, offset.x),   // 90°
+                Direction.Down => new Vector2Int(offset.x, offset.y),   // 180°
+                Direction.Left => new Vector2Int(offset.y, -offset.x),    // 270° (-90°)
+                // Unreal
+                _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
+            };
+        }
+
+        /// <summary>
+        /// Rotate direction by offset ( direction )
+        /// </summary>
         public static Direction Rotate(
             this Grid _,
             Direction baseDir, Direction offset)
@@ -154,10 +238,16 @@ namespace FrxStudio.Generator
             return (Direction)result;
         }
 
+        /// <summary>
+        /// Get +- distance from, to
+        /// </summary>
         public static int GetManhattan(this Grid _, CellPosition from, CellPosition to) =>
             Math.Abs(from.X - to.X) +
             Math.Abs(from.Y - to.Y);
 
+        /// <summary>
+        /// Convert world room direction to rotation
+        /// </summary>
         public static Quaternion DirectionToEuler(this Grid _, Direction direction)
         {
             var rotation = direction switch
@@ -173,9 +263,9 @@ namespace FrxStudio.Generator
             return Quaternion.Euler(0, rotation, 0);
         }
 
-        public static Direction GetRandomDirection(this Grid _, System.Random random) =>
-            CachedDirections[random.Next(CachedDirections.Length)];
-
+        /// <summary>
+        /// Return random valid direction
+        /// </summary>
         public static Direction GetRandomDirection(this Grid grid, CellPosition pos, System.Random random)
         {
             var validDirections = new List<Direction>();

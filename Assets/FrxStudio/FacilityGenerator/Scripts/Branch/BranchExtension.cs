@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// This contains static functions that dont need to be in BranchGenerator
+    /// </summary>
     public static class BranchExtension
     {
         public static (int remainingIndex, int connectedIndex) GetClosestPair(
@@ -32,6 +35,7 @@ namespace FrxStudio.Generator
             return (bestRemIdx, bestConIdx);
         }
 
+        /// <returns>Position from which the path will originate</returns>
         public static (CellPosition from, CellPosition to) GetPathStartPositions(
             CellPosition fromLeaf,
             CellPosition toLeaf,
@@ -43,12 +47,17 @@ namespace FrxStudio.Generator
             if (fromCell.Owner == null || toCell.Owner == null)
                 return (CellPosition.Invalid, CellPosition.Invalid);
 
-            var fromStart = GridExternal.GetNext(grid, fromLeaf, fromCell.Owner.InstanceDirection);
-            var toStart = GridExternal.GetNext(grid, toLeaf, toCell.Owner.InstanceDirection);
+            var fromStart = GridExtension.GetNext(grid, fromLeaf, fromCell.Owner.InstanceDirection);
+            var toStart = GridExtension.GetNext(grid, toLeaf, toCell.Owner.InstanceDirection);
 
             return (fromStart, toStart);
         }
 
+        /// <summary>
+        /// Convert one path node, to list pathnodes
+        /// </summary>
+        /// <param name="pathEnd"></param>
+        /// <returns>Converted path</returns>
         public static List<PathfindNode> GetPathToList(PathfindNode pathEnd)
         {
             var nodes = new List<PathfindNode>();
@@ -63,7 +72,7 @@ namespace FrxStudio.Generator
             return nodes;
         }
 
-        // look at direction, where NOT have exit
+        /// <returns>T shape direction, where not have exit</returns>
         public static Direction GetTShapeDirection(ExitsMask exits)
         {
             if (!exits.Has(Direction.Left))
@@ -78,6 +87,7 @@ namespace FrxStudio.Generator
             return Direction.Up;
         }
 
+        /// <returns>C shape direction, by exits mask</returns>
         public static Direction GetCShapeDirection(ExitsMask exits)
         {
             if (exits.Has(Direction.Down) && exits.Has(Direction.Left))

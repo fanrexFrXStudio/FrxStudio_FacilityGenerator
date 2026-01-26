@@ -7,25 +7,34 @@ namespace FrxStudio.Generator
         menuName = "FrxStudio/Generator/CreateNewGeneratorPreset")]
     public class ScriptableGeneratorPreset : ScriptableObject
     {
+        /// <summary>
+        /// Size in world
+        /// </summary>
         [Foldout("Cell"), Range(1, 50)]
         public float CellSize = 10;
 
+        /// <summary>
+        /// World spacing between 1 cell
+        /// </summary>
         [Foldout("Cell"), Range(.01f, 5)]
         public float CellSpacing = 0.1f;
 
         [Foldout("Cell"), Range(3, 50)]
         public int CellsCountX = 7, CellsCountY = 7;
 
+        /// <summary>
+        /// Rooms to spawn
+        /// </summary>
         public ScriptableRoomBase[] Rooms;
 
-        [Foldout("Required Room"), Range(.05f, 0.5f)]
-        public float MustRoomBaseChance = 0.15f;
+        [Foldout("Must branches"), Range(.05f, 0.5f)]
+        public float MustBranchBaseChance = 0.15f;
 
-        [Foldout("Required Room"), Range(1.1f, 2.0f)]
-        public float MustRoomChanceMultiplier = 1.3f;
+        [Foldout("Must branches"), Range(1.1f, 2.0f)]
+        public float MustBranchChanceMultiplier = 1.3f;
 
-        [Foldout("Required Room"), Range(0f, 2f)]
-        public float MustRoomChanceResetValue = 2;
+        [Foldout("Must branches"), Range(0f, 2f)]
+        public float MustBranchChanceResetValue = 2;
 
         [Foldout("Extra Paths")]
         public ExtraPathStrategy ExtraPathType = ExtraPathStrategy.ByDistance;
@@ -51,18 +60,21 @@ namespace FrxStudio.Generator
         private bool ShowByLeafCount => ExtraPathType == ExtraPathStrategy.ByLeafCount;
     }
 
+    /// <summary>
+    /// Variant of create additional paths
+    /// </summary>
     public enum ExtraPathStrategy
     {
-        [Tooltip("Не создавать дополнительные пути")]
+        [Tooltip("Dont create extra path")]
         None,
 
-        [Tooltip("Фиксированное количество путей")]
+        [Tooltip("Fixed path count")]
         Fixed,
 
-        [Tooltip("По дистанции (соединяет далёкие комнаты)")]
+        [Tooltip("By distance ( connect distant room )")]
         ByDistance,
 
-        [Tooltip("По количеству комнат (процент от общего числа)")]
+        [Tooltip("By rooms count (percentage of total)")]
         ByLeafCount
     }
 }

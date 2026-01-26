@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CellSize: 10
   CellSpacing: 0.1
-  CellsCountX: 10
-  CellsCountY: 10
+  CellsCountX: 11
+  CellsCountY: 11
   Rooms:
   - {fileID: 11400000, guid: 903d2b8b72d38474a9b89d74da034e96, type: 2}
   - {fileID: 11400000, guid: 5d85894d3b07bf9439bc266099b87f6f, type: 2}
   - {fileID: 11400000, guid: da0a0e464196a8f4293ef21a5b3091a0, type: 2}
+  - {fileID: 11400000, guid: f5ea9e26090fde3419fc6f926689518f, type: 2}
+  - {fileID: 11400000, guid: 1f020caeecfbf58438507061eace41c6, type: 2}
   - {fileID: 11400000, guid: 469c0bc270507b04b92c96d05af0f707, type: 2}
   - {fileID: 11400000, guid: d70865823d3e5054bbbdcdac7e625ecf, type: 2}
   - {fileID: 11400000, guid: 6e25383479a054a45b9f643ef3c45907, type: 2}
@@ -27,11 +29,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e80dae47d9bd986458473aa2982ffaa9, type: 2}
   - {fileID: 11400000, guid: a49f9090ab6ebbc4a859ff4cbcf1375c, type: 2}
   - {fileID: 11400000, guid: 809e3eb949e2286429408f5944bd8e5a, type: 2}
-  MustRoomBaseChance: 0.15
-  MustRoomChanceMultiplier: 2
-  MustRoomChanceResetValue: 1
+  MustBranchBaseChance: 0.15
+  MustBranchChanceMultiplier: 1.3
+  MustBranchChanceResetValue: 2
   ExtraPathType: 2
   ExtraPathCount: 2
-  ExtraPathMinDistance: 7
-  ExtraPathMaxCount: 2
+  ExtraPathMinDistance: 10
+  ExtraPathMaxCount: 1
   ExtraPathPercentage: 1

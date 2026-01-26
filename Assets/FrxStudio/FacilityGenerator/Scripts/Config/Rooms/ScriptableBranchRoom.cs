@@ -13,7 +13,12 @@ namespace FrxStudio.Generator
         [Foldout("Spawn"), Range(1, 100), SerializeField]
         private byte spawnChance;
 
+        [Foldout("Size"), ShowIf(nameof(Large))]
+        public Vector2Int ExitOffset;
+
         public override byte SpawnChance => spawnChance;
+
+        public override Vector2Int[] ExitsOffset => new Vector2Int[] { ExitOffset };
     }
 
     public enum BranchShape

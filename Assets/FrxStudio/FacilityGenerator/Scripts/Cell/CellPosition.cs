@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// CellPosition in array and world
+    /// </summary>
     public readonly struct CellPosition
     {
         public readonly int X, Y;

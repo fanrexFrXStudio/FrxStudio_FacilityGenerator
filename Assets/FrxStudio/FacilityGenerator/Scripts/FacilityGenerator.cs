@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// The main mono - starter generator
+    /// </summary>
     public class FacilityGenerator : MonoBehaviour
     {
         #region Var
@@ -54,28 +57,69 @@ namespace FrxStudio.Generator
 
         #region Logic
 
-        public bool Spawn(ScriptableRoomBase room, CellPosition position, Direction direction)
+        public bool Spawn(ScriptableRoomBase room, CellPosition position, Direction direction, List<CellPosition> reservedPositions = null)
         {
             var cell = grid.GetCell(position);
 
             if (cell == Cell.Invalid)
             {
-                Debug.LogWarning("[Generator]: Attemp to spawn room in invalid cell");
+                Debug.LogWarning("[Generator]: Attempt to spawn room in invalid cell");
                 return false;
             }
 
             if (cell.IsBusy)
             {
-                Debug.LogWarning("[Generator]: Attemp to spawn room in busy cell");
+                Debug.LogWarning("[Generator]: Attempt to spawn room in busy cell");
                 return false;
             }
 
+            // СНАЧАЛА проверяем и резервируем ВСЕ дополнительные клетки
+            if (room.Large)
+            {
+                if (reservedPositions == null || reservedPositions.Count == 0)
+                {
+                    Debug.LogWarning("[Generator]: Attempt spawn large room with null reserved positions");
+                    return false;
+                }
+
+                if (reservedPositions.Count != room.AdditionalCells.Length)
+                {
+                    Debug.LogWarning("[Generator]: Attempt to create large room with the wrong number of additional cells");
+                    return false;
+                }
+
+                // Проверяем что ВСЕ дополнительные клетки свободны
+                foreach (var additionalCellPosition in reservedPositions)
+                {
+                    var additionalCell = grid.GetCell(additionalCellPosition);
+
+                    if (additionalCell == Cell.Invalid || additionalCell.IsBusy)
+                    {
+                        Debug.LogWarning($"[Generator]: Additional cell {additionalCellPosition} is invalid or busy");
+                        return false;
+                    }
+                }
+            }
+
+            // ТЕПЕРЬ спавним префаб
             var instance = Instantiate(room.Prefab, position.WorldPosition, grid.DirectionToEuler(direction));
 
-            cell.SetOwner(instance, direction, room);
+            // Устанавливаем владельца базовой клетки
+            cell.SetOwner(instance, direction, room, false);
             grid.SetCell(position, cell);
 
             spawned.Add(instance);
+
+            // Устанавливаем владельца дополнительных клеток
+            if (room.Large)
+            {
+                foreach (var additionalCellPosition in reservedPositions)
+                {
+                    var additionalCell = grid.GetCell(additionalCellPosition);
+                    additionalCell.SetOwner(instance, direction, room, true);
+                    grid.SetCell(additionalCellPosition, additionalCell);
+                }
+            }
 
             return true;
         }

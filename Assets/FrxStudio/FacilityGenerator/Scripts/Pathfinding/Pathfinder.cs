@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// Find path from a to b ( by algorithm A* )
+    /// </summary>
     public class Pathfinder
     {
         private readonly Grid grid;
@@ -17,6 +20,9 @@ namespace FrxStudio.Generator
             this.grid = grid;
         }
 
+        /// <summary>
+        /// Clear all nodes data
+        /// </summary>
         private void RefreshNodes()
         {
             openedNodes.Clear();
@@ -48,11 +54,13 @@ namespace FrxStudio.Generator
         }
 
         // RU DOC
+        /// <returns>Path from a to b, bypassing occupied cells and the front part</returns>
         public PathfindNode GetPath(CellPosition from, CellPosition to)
         {
             RefreshNodes();
 
             // Каждый проход по клетке стоит 1 G
+            // Every passage by cell cost 1 G
             const int oneCellCost = 1;
 
             // алгоритм звезды использует коллекции открытых и закрытых нод, для дальнейшей работы с ними
@@ -85,7 +93,7 @@ namespace FrxStudio.Generator
                     break;
                 }
 
-                foreach (var neighbord in grid.GetNeighbords(priorityNode.Cell.Position))
+                foreach (var neighbord in grid.GetNeighbors(priorityNode.Cell.Position))
                 {
                     var node = nodes[neighbord.X, neighbord.Y];
 
@@ -109,7 +117,8 @@ namespace FrxStudio.Generator
 
             return founded;
         }
-        
+
+        /// <returns>Is valid neighbord?</returns>
         private bool ValidateNeighbord(
             out PathfindNode founded,
             PathfindNode neighbord,
@@ -117,45 +126,46 @@ namespace FrxStudio.Generator
             CellPosition target,
             int oneCellCost = 1)
         {
-            // если бы не было этой проверки - алгоритм всегда бы багался, так как не может
-            // прийти к таргету, так как он считается занятой клеткой
+            // если бы не было этой проверки - алгоритм всегда бы багался
             if (neighbord.Cell.Position == target)
             {
-                // задаем родителя, иначе конструированние путя не сможет начаться, так как нету родителя 
-                // (он задаеться ниже)
                 neighbord.Parent = priorityNode;
                 founded = neighbord;
-
                 return true;
             }
 
             // есть ли клетка в закрытых? занята ли она?
-            // то что это, может быть целью - уже учли выше. буквально на 1 пробел выше
             if (closedNodes.Contains(neighbord) || neighbord.Cell.IsBusy)
             {
-                // не валидная нода для обработки, пропускаем до следущего соседа
                 founded = null;
                 return false;
             }
 
-            // если клетка является фронтом занятой комнаты - нельзя
-            foreach (var dir in (Direction[])Enum.GetValues(typeof(Direction)))
+            foreach (var dir in GridExtension.CachedDirections)
             {
-                // шаг НАЗАД от текущей клетки
-                var backPos = grid.GetNext(neighbord.Cell.Position, dir);
+                var adjacentPos = grid.GetNext(neighbord.Cell.Position, dir);
 
-                if (backPos == CellPosition.Invalid)
+                if (adjacentPos == CellPosition.Invalid)
                     continue;
 
-                var backCell = grid.GetCell(backPos);
-                if (backCell == null || backCell.IsBusy == false)
+                var adjacentCell = grid.GetCell(adjacentPos);
+
+                if (adjacentCell == Cell.Invalid || !adjacentCell.IsBusy)
                     continue;
 
-                // направление от занятой клетки К текущей
-                var frontDir = grid.GetDirectionBetween(backCell.Position, neighbord.Cell.Position);
+                // Если соседняя клетка - это зарезервированная часть большой комнаты
+                if (adjacentCell.Owner.IsRoomReserved)
+                {
+                    // Блокируем проход, так как нельзя идти вплотную к дополнительным клеткам
+                    // (они часть одной большой комнаты)
+                    founded = null;
+                    return false;
+                }
 
-                // если занятая комната смотрит на текущую клетку - блок
-                if (backCell.Owner.InstanceDirection == frontDir)
+                // Проверка на фронт основной клетки комнаты
+                var frontDir = grid.GetDirectionBetween(adjacentCell.Position, neighbord.Cell.Position);
+
+                if (adjacentCell.Owner.InstanceDirection == frontDir)
                 {
                     founded = null;
                     return false;
@@ -168,8 +178,6 @@ namespace FrxStudio.Generator
             if (openedNodes.Contains(neighbord) == false)
             {
                 newGBest = true;
-
-                // пушим этого соседа в открытые ноды, для дальнейшей обработки
                 neighbord.HeuristicCost = grid.GetManhattan(neighbord.Cell.Position, target);
                 openedNodes.Add(neighbord);
             }

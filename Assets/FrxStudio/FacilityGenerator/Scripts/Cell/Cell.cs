@@ -1,8 +1,10 @@
-using System;
 using UnityEngine;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// Cell in grid
+    /// </summary>
     public readonly struct Cell
     {
         public readonly CellPosition Position;
@@ -19,9 +21,9 @@ namespace FrxStudio.Generator
         }
 
         public readonly void SetOwner(
-            GameObject instance, Direction instanceDirection, ScriptableRoomBase reference)
+            GameObject instance, Direction instanceDirection, ScriptableRoomBase reference, bool isRoomReserved)
         {
-            Owner.SetOwner(instance, instanceDirection, reference);
+            Owner.SetOwner(instance, instanceDirection, reference, isRoomReserved);
         }
 
         #region Operator

@@ -2,6 +2,9 @@
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// Data of path
+    /// </summary>
     public class PathfindNode : IComparable<PathfindNode>
     {
         public Cell Cell;

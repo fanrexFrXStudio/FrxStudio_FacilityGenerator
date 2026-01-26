@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace FrxStudio.Generator
 {
-    public class PathPlanner
+    /// <summary>
+    /// Planner of path
+    /// </summary>
+    public class PathPlanner : IGizmoDrawable
     {
         private readonly Grid grid;
         private readonly LeafGenerator leafGenerator;
@@ -22,6 +25,9 @@ namespace FrxStudio.Generator
 
         public Dictionary<CellPosition, BranchNode> GetPathMarkers() => pathMarkers;
 
+        /// <summary>
+        /// Mark paths
+        /// </summary>
         public bool MarkAllPaths(bool logging = false)
         {
             var leaves = leafGenerator.PlacedLeafs?.ToArray();
@@ -46,6 +52,7 @@ namespace FrxStudio.Generator
                 {
                     if (logging)
                         Debug.LogError("[Generator]: BranchGenerator: Failed to find pair to connect");
+
                     return false;
                 }
 
@@ -81,6 +88,9 @@ namespace FrxStudio.Generator
             return true;
         }
 
+        /// <summary>
+        /// Mark path exits
+        /// </summary>
         public void MarkPathExits(PathfindNode pathEnd, CellPosition fromLeaf, CellPosition toLeaf)
         {
             var nodes = BranchExtension.GetPathToList(pathEnd);
@@ -98,10 +108,10 @@ namespace FrxStudio.Generator
                 var marker = pathMarkers[pos];
 
                 if (i > 0)
-                    marker.Exits = marker.Exits.Add(GridExternal.GetDirectionBetween(grid, pos, nodes[i - 1].Cell.Position));
+                    marker.Exits = marker.Exits.Add(GridExtension.GetDirectionBetween(grid, pos, nodes[i - 1].Cell.Position));
 
                 if (i < nodes.Count - 1)
-                    marker.Exits = marker.Exits.Add(GridExternal.GetDirectionBetween(grid, pos, nodes[i + 1].Cell.Position));
+                    marker.Exits = marker.Exits.Add(GridExtension.GetDirectionBetween(grid, pos, nodes[i + 1].Cell.Position));
             }
 
             if (nodes.Count > 0)
@@ -113,12 +123,17 @@ namespace FrxStudio.Generator
 
         private void MarkLeafConnection(CellPosition pathPos, CellPosition leafPos)
         {
-            var dir = GridExternal.GetDirectionBetween(grid, pathPos, leafPos);
+            var dir = GridExtension.GetDirectionBetween(grid, pathPos, leafPos);
 
             if (!pathMarkers.ContainsKey(pathPos))
                 pathMarkers[pathPos] = new BranchNode { Position = pathPos };
 
             pathMarkers[pathPos].Exits = pathMarkers[pathPos].Exits.Add(dir);
+        }
+
+        public void DrawGizmo()
+        {
+
         }
     }
 }

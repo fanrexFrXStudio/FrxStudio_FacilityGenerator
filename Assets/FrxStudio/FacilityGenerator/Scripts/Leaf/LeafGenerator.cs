@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting.FullSerializer;
+using UnityEngine.UIElements;
 
 namespace FrxStudio.Generator
 {
+    /// <summary>
+    /// Dead End Generator ( all dead ends are ,must rooms )
+    /// </summary>
     public class LeafGenerator
     {
         public IReadOnlyList<CellPosition> PlacedLeafs => placedLeafs;
@@ -25,6 +30,10 @@ namespace FrxStudio.Generator
             this.random = random;
         }
 
+        /// <summary>
+        /// Create all leafs, in random position by config
+        /// </summary>
+        /// <returns></returns>
         public bool SpawnLeafs()
         {
             var leafs = preset.Rooms.OfType<ScriptableLeafRoom>().ToArray();
@@ -36,14 +45,16 @@ namespace FrxStudio.Generator
             {
                 for (var count = 0; count < leaf.Count; count++)
                 {
-                    var position = GetLeafPosition(leaf);
+                    //var position = GetLeafPosition(leaf, reservedCells);
 
-                    if (position == CellPosition.Invalid)
-                        return false;
+                   // if (position == CellPosition.Invalid)
+                   //     return false;
 
-                    var direction = GetDirection(leaf, position);
+                   // var direction = GetDirection(leaf, position);
 
-                    if (!generator.Spawn(leaf, position, direction))
+                    var (position, direction, additionalCells) = GetLeafData(leaf);
+
+                    if (!generator.Spawn(leaf, position, direction, additionalCells))
                         return false;
 
                     placedLeafs.Add(position);
@@ -53,6 +64,10 @@ namespace FrxStudio.Generator
             return true;
         }
 
+        /*
+        /// <summary>
+        /// Return random valid direction, if override, then overridden direction
+        /// </summary>
         private Direction GetDirection(ScriptableLeafRoom config, CellPosition position)
         {
             if (!config.OverrideDirection)
@@ -62,8 +77,39 @@ namespace FrxStudio.Generator
                 grid.GetNearestEdgeInwardDirection(position),
                 config.OverriddenDirection);
         }
+        */
 
-        private CellPosition GetLeafPosition(ScriptableLeafRoom config)
+        private (CellPosition position, Direction direction, List<CellPosition> reservedPositions) GetLeafData(ScriptableLeafRoom room)
+        {
+            var cells = grid.GetCells(cellPosition => !grid.GetCell(cellPosition).IsBusy).ToList();
+            var candidatesCells = new List<(CellPosition, Direction, List<CellPosition>)>();
+
+            foreach (var cellPosition in cells)
+            {
+                var reservedPositions = new List<CellPosition>();
+
+                var direction = !room.OverrideDirection ?
+                    grid.GetRandomDirection(cellPosition, random) :
+                    grid.Rotate(grid.GetNearestEdgeInwardDirection(cellPosition), room.OverriddenDirection);
+
+                if (IsValidByEdgeDistance(room, cellPosition) &&
+                    !HasConflictWithPlacedLeafs(room, cellPosition) &&
+                    grid.IsValidLargeRoom(room, cellPosition, direction, reservedPositions))
+                {
+                    candidatesCells.Add((cellPosition, direction, new List<CellPosition>(reservedPositions)));
+                }
+            }
+
+            if (candidatesCells.Count == 0)
+                return (CellPosition.Invalid, Direction.Up, null);
+
+            var selected = candidatesCells[random.Next(candidatesCells.Count)];
+            return selected;
+        }
+
+        /*
+        /// <returns>Random valid position</returns>
+        private CellPosition GetLeafPosition(ScriptableLeafRoom config, List<CellPosition> reservedPositions)
         {
             var cells = grid.GetCells(cellPosition => !grid.GetCell(cellPosition).IsBusy).ToList();
             var candidatesCells = new List<CellPosition>();
@@ -71,7 +117,8 @@ namespace FrxStudio.Generator
             foreach (var cellPosition in cells)
             {
                 if (IsValidByEdgeDistance(config, cellPosition) &&
-                    !HasConflictWithPlacedLeafs(config, cellPosition))
+                    !HasConflictWithPlacedLeafs(config, cellPosition) &&
+                    !GridExtension.IsValidLargeRoom(grid, config, cellPosition, Direction.Up, reservedPositions)
                     candidatesCells.Add(cellPosition);
             }
 
@@ -80,7 +127,16 @@ namespace FrxStudio.Generator
 
             return candidatesCells[random.Next(candidatesCells.Count)];
         }
-
+        */
+        /*
+        /// <summary>
+        /// If is large, checking size
+        /// </summary>
+        private bool IsValidLarge(ScriptableLeafRoom config, CellPosition position, )
+        {
+            if
+        }
+        */
         private bool IsValidByEdgeDistance(ScriptableLeafRoom config, CellPosition cellPosition)
         {
             var nearestEdgePosition = grid.GetNearestEdgePosition(cellPosition);
@@ -127,7 +183,7 @@ namespace FrxStudio.Generator
             if (grid.GetManhattan(cellPosition, placedLeaf) != 1)
                 return false;
 
-            foreach (var dir in GridExternal.CachedDirections)
+            foreach (var dir in GridExtension.CachedDirections)
             {
                 if (grid.GetNext(cellPosition, dir) == placedLeaf)
                     return true;

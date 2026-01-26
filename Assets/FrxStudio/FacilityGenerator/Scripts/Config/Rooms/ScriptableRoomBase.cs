@@ -14,7 +14,15 @@ namespace FrxStudio.Generator
         [Foldout("Spawn"), ShowIf(nameof(MustSpawn))]
         public byte Count;
 
+        [Foldout("Size")]
+        public bool Large;
+
+        [Foldout("Size"), ShowIf(nameof(Large))]
+        public Vector2Int[] AdditionalCells;
+
         public abstract byte SpawnChance { get; }
+        public virtual Vector2Int[] ExitsOffset => null;
+
         protected bool MustSpawn => SpawnChance == 100;
     }
 }

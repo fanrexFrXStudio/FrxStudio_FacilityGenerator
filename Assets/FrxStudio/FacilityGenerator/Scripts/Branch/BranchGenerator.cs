@@ -1,4 +1,6 @@
-﻿namespace FrxStudio.Generator
+﻿using UnityEngine;
+
+namespace FrxStudio.Generator
 {
     /// <summary>
     /// The main generator of intersections and branches
@@ -28,14 +30,19 @@
         {
             // step 1: find path and mark exits WITHOUT spawning room
             if (!pathPlanner.MarkAllPaths())
+            {
                 return false;
+            }
 
             // step 1.5: add extra paths for network structure
             extraPathGenerator.MarkExtraPaths();
 
             // step 2: spawn rooms in paths
             if (!roomSpawner.SpawnRoomsOnPaths(pathPlanner.GetPathMarkers()))
+            {
                 return false;
+            }
+
 
             return true;
         }

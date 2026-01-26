@@ -321,6 +321,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2989313414139373677, guid: ddb71ab498949df468f1da1f84b72757, type: 3}
+      propertyPath: preset
+      value: 
+      objectReference: {fileID: 11400000, guid: b29d5e40510cc1c4c9d90c17cdd82f33, type: 2}
+    - target: {fileID: 2989313414139373677, guid: ddb71ab498949df468f1da1f84b72757, type: 3}
+      propertyPath: attemps
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 2989313414139373677, guid: ddb71ab498949df468f1da1f84b72757, type: 3}
       propertyPath: settings.Seed.Seed
       value: 0
       objectReference: {fileID: 0}

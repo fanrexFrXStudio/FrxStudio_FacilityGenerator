@@ -22,7 +22,7 @@ namespace FrxStudio.Generator
         private bool generateInAwake;
 
         [Range(1, 16), SerializeField]
-        private byte attemps = 8;
+        private byte attempts = 8;
 
         [SerializeField]
         private int seed;
@@ -36,7 +36,7 @@ namespace FrxStudio.Generator
 
         private int initialSeed;
 
-        private int RandomSeed => UnityEngine.Random.Range(1, int.MaxValue);
+        private int RandomSeed => Random.Range(1, int.MaxValue);
 
         #endregion
 
@@ -73,7 +73,6 @@ namespace FrxStudio.Generator
                 return false;
             }
 
-            // СНАЧАЛА проверяем и резервируем ВСЕ дополнительные клетки
             if (room.Large)
             {
                 if (reservedPositions == null || reservedPositions.Count == 0)
@@ -88,7 +87,6 @@ namespace FrxStudio.Generator
                     return false;
                 }
 
-                // Проверяем что ВСЕ дополнительные клетки свободны
                 foreach (var additionalCellPosition in reservedPositions)
                 {
                     var additionalCell = grid.GetCell(additionalCellPosition);
@@ -101,16 +99,15 @@ namespace FrxStudio.Generator
                 }
             }
 
-            // ТЕПЕРЬ спавним префаб
             var instance = Instantiate(room.Prefab, position.WorldPosition, grid.DirectionToEuler(direction));
 
-            // Устанавливаем владельца базовой клетки
+            // Set main cell owner
             cell.SetOwner(instance, direction, room, false);
             grid.SetCell(position, cell);
 
             spawned.Add(instance);
 
-            // Устанавливаем владельца дополнительных клеток
+            // Set additional cells owner
             if (room.Large)
             {
                 foreach (var additionalCellPosition in reservedPositions)
@@ -138,7 +135,7 @@ namespace FrxStudio.Generator
         private void GeneratorStressTest()
         {
             const int iterations = 2500;
-            const int maxFailedIterationsAllowed = 15;
+            const int maxFailedIterationsAllowed = 3;
 
             StartCoroutine(ForEachGenerate(iterations));
 
@@ -184,12 +181,14 @@ namespace FrxStudio.Generator
 
             var isSpawned = false;
 
-            for (var attempt = 0; attempt < attemps; attempt++)
+            for (var attempt = 0; attempt < attempts; attempt++)
             {
                 InitializeGrid();
 
-                if (InitializeLeafs() &&
-                    InitializeBranch())
+                var leafsInit = InitializeLeafs();
+                var branchInit = InitializeBranch();
+
+                if (leafsInit && branchInit)
                 {
                     isSpawned = true;
                     break;
